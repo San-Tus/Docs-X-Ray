@@ -1,0 +1,93 @@
+{
+  "personal_identifiers": [
+    "social security number",
+    "passport number",
+    "national id",
+    "date of birth",
+    "mother's maiden name",
+    "driver's license",
+    "phone number",
+    "email address"
+  ],
+  "financial": [
+    "credit card",
+    "iban",
+    "swift",
+    "account number",
+    "routing number",
+    "bank account",
+    "card number",
+    "cvv",
+    "expiration date"
+  ],
+  "confidentiality": [
+    "confidential",
+    "internal use only",
+    "do not distribute",
+    "trade secret",
+    "proprietary",
+    "secret",
+    "classified"
+  ],
+  "credentials": [
+    "username",
+    "password",
+    "api key",
+    "secret key"
+  ],
+  "health": [
+    "medical record",
+    "health insurance",
+    "diagnosis"
+  ],
+  "location": [
+    "address",
+    "coordinates",
+    "gps"
+  ],
+  "development_secrets": [
+    "api_token",
+    "access_token",
+    "auth_token",
+    "bearer token",
+    "client_secret",
+    "client_id",
+    "consumer_key",
+    "consumer_secret",
+    "oauth_token",
+    "refresh_token",
+    "private_key",
+    "public_key",
+    "encryption_key",
+    "jwt_secret",
+    "database_password",
+    "db_password",
+    "mongodb_uri",
+    "postgres_password",
+    "mysql_password",
+    "redis_password",
+    "smtp_password",
+    "aws_access_key_id",
+    "aws_secret_access_key",
+    "azure_client_secret",
+    "google_api_key",
+    "firebase_api_key",
+    "stripe_secret_key",
+    "stripe_publishable_key",
+    "slack_token",
+    "github_token",
+    "gitlab_token",
+    "bitbucket_token",
+    "docker_password",
+    "ssh_private_key",
+    "pgp_private_key",
+    "session_secret",
+    "cookie_secret",
+    "webhook_secret",
+    "signing_key",
+    "master_key",
+    "encryption_password",
+    "salt",
+    "seed"
+  ]
+}

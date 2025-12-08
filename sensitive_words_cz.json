@@ -1,0 +1,93 @@
+{
+  "personal_identifiers": [
+    "rodné číslo",
+    "číslo pasu",
+    "číslo občanského průkazu",
+    "datum narození",
+    "rodné příjmení matky",
+    "číslo řidičského průkazu",
+    "telefonní číslo",
+    "emailová adresa"
+  ],
+  "financial": [
+    "kreditní karta",
+    "IBAN",
+    "SWIFT",
+    "číslo účtu",
+    "směrové číslo banky",
+    "bankovní účet",
+    "číslo karty",
+    "CVV",
+    "datum expirace"
+  ],
+  "confidentiality": [
+    "důvěrné",
+    "pouze pro vnitřní potřebu",
+    "nešířit",
+    "obchodní tajemství",
+    "vlastnické",
+    "tajné",
+    "utajované"
+  ],
+  "credentials": [
+    "uživatelské jméno",
+    "heslo",
+    "API klíč",
+    "tajný klíč"
+  ],
+  "health": [
+    "zdravotní záznam",
+    "zdravotní pojištění",
+    "diagnóza"
+  ],
+  "location": [
+    "adresa",
+    "souřadnice",
+    "GPS"
+  ],
+  "development_secrets": [
+    "api_token",
+    "access_token",
+    "auth_token",
+    "bearer token",
+    "client_secret",
+    "client_id",
+    "consumer_key",
+    "consumer_secret",
+    "oauth_token",
+    "refresh_token",
+    "private_key",
+    "public_key",
+    "encryption_key",
+    "jwt_secret",
+    "databázové heslo",
+    "db_password",
+    "mongodb_uri",
+    "postgres_password",
+    "mysql_password",
+    "redis_password",
+    "smtp_password",
+    "aws_access_key_id",
+    "aws_secret_access_key",
+    "azure_client_secret",
+    "google_api_key",
+    "firebase_api_key",
+    "stripe_secret_key",
+    "stripe_publishable_key",
+    "slack_token",
+    "github_token",
+    "gitlab_token",
+    "bitbucket_token",
+    "docker_password",
+    "ssh_private_key",
+    "pgp_private_key",
+    "session_secret",
+    "cookie_secret",
+    "webhook_secret",
+    "signing_key",
+    "master_key",
+    "šifrovací heslo",
+    "sůl",
+    "seed"
+  ]
+}
