@@ -29,11 +29,6 @@ A comprehensive Python tool for scanning documents and code files for sensitive 
 pip install -r requirements.txt
 ```
 
-Required dependency for OpenDocument support:
-```bash
-pip install odfpy
-```
-
 ## Usage
 
 ### Basic Scan
