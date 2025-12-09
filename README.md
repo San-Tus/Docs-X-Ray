@@ -36,19 +36,19 @@ pip install -r requirements.txt
 ### Basic Scan
 
 ```bash
-python docx-x-ray.py -d /path/to/documents -s en
+python docs-x-ray.py -d /path/to/documents -s en
 ```
 
 ### Recursive Scan with Statistics Export
 
 ```bash
-python docx-x-ray.py -d /path/to/folder -s en -r -o all
+python docs-x-ray.py -d /path/to/folder -s en -r -o all
 ```
 
 ### Export to Specific Output Directory
 
 ```bash
-python docx-x-ray.py -d /path/to/folder -s en -O ./reports -o xlsx
+python docs-x-ray.py -d /path/to/folder -s en -O ./reports -o xlsx
 ```
 
 ### Options
@@ -90,22 +90,22 @@ All output files are saved to the output directory specified with `-O`, or to th
 
 ```bash
 # Scan a project directory recursively with English sensitivity list
-python docx-x-ray.py -d ./my-project -s en -r
+python docs-x-ray.py -d ./my-project -s en -r
 
 # Scan with Czech sensitivity list and Czech report
-python docx-x-ray.py -d ./documents -s cz -l cz
+python docs-x-ray.py -d ./documents -s cz -l cz
 
 # Scan and export all statistics formats to a specific directory
-python docx-x-ray.py -d ./my-project -s en -r -o all -O ./scan-results
+python docs-x-ray.py -d ./my-project -s en -r -o all -O ./scan-results
 
 # Export only JSON statistics without HTML report
-python docx-x-ray.py -d ./files -s en -o json --no-html
+python docs-x-ray.py -d ./files -s en -o json --no-html
 
 # Scan with XLSX export to custom output folder
-python docx-x-ray.py -d ./documents -s en -r -o xlsx -O ~/reports
+python docs-x-ray.py -d ./documents -s en -r -o xlsx -O ~/reports
 
 # Enable case-sensitive matching (matches "Password" but not "password")
-python docx-x-ray.py -d ./files -s en -c
+python docs-x-ray.py -d ./files -s en -c
 ```
 
 ## Matching Behavior
