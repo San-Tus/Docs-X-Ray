@@ -87,7 +87,6 @@
     "signing_key",
     "master_key",
     "encryption_password",
-    "salt",
-    "seed"
+    "salt"
   ]
 }

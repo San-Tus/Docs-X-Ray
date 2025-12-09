@@ -9,6 +9,8 @@ A comprehensive Python tool for scanning documents and code files for sensitive 
 - Recursive directory scanning
 - Customizable sensitivity word lists
 - HTML report generation with multilingual support
+- Statistical data export in CSV, XLSX, and JSON formats
+- Configurable output directory
 - Context highlighting for matches
 
 ## Supported File Types
@@ -34,13 +36,19 @@ pip install -r requirements.txt
 ### Basic Scan
 
 ```bash
-python content-anlyzer.py -d /path/to/documents -s en
+python docx-x-ray.py -d /path/to/documents -s en
 ```
 
-### Recursive Scan
+### Recursive Scan with Statistics Export
 
 ```bash
-python content-anlyzer.py -d /path/to/folder -s en -r
+python docx-x-ray.py -d /path/to/folder -s en -r -o all
+```
+
+### Export to Specific Output Directory
+
+```bash
+python docx-x-ray.py -d /path/to/folder -s en -O ./reports -o xlsx
 ```
 
 ### Options
@@ -49,6 +57,9 @@ python content-anlyzer.py -d /path/to/folder -s en -r
 - `-s, --sensitivity-list`: Sensitivity list to use (`en` or `cz`, default: `en`)
 - `-r, --recursive`: Recursively scan all subdirectories
 - `-l, --lang`: Report language (`en` or `cz`, default: `en`)
+- `-o, --output-format`: Export statistics format (`csv`, `xlsx`, `json`, or `all` for all formats)
+- `-O, --output-dir`: Output directory for all reports and statistics (default: script directory)
+- `-c, --case-sensitive`: Enable case-sensitive matching (default: case-insensitive)
 - `--no-html`: Disable HTML report generation
 
 ## Sensitivity Categories
@@ -68,20 +79,42 @@ The tool scans for the following categories of sensitive information:
 The tool generates:
 
 1. **Console Output**: Colored terminal output with match context
-2. **HTML Report**: Comprehensive report with statistics and detailed findings (default filename: `scan_report_<language>.html`)
+2. **HTML Report**: Comprehensive report with statistics and detailed findings (filename: `scan_report_<language>.html`)
+3. **CSV Statistics**: Tabular data export with summary statistics (filename: `statistics_<language>.csv`)
+4. **XLSX Statistics**: Excel workbook with formatted tables (filename: `statistics_<language>.xlsx`)
+5. **JSON Statistics**: Structured data export with metadata (filename: `statistics_<language>.json`)
 
-## Example
+All output files are saved to the output directory specified with `-O`, or to the script directory by default.
+
+## Examples
 
 ```bash
 # Scan a project directory recursively with English sensitivity list
-python content-anlyzer.py -d ./my-project -s en -r
+python docx-x-ray.py -d ./my-project -s en -r
 
 # Scan with Czech sensitivity list and Czech report
-python content-anlyzer.py -d ./documents -s cz -l cz
+python docx-x-ray.py -d ./documents -s cz -l cz
 
-# Scan without generating HTML report
-python content-anlyzer.py -d ./files -s en --no-html
+# Scan and export all statistics formats to a specific directory
+python docx-x-ray.py -d ./my-project -s en -r -o all -O ./scan-results
+
+# Export only JSON statistics without HTML report
+python docx-x-ray.py -d ./files -s en -o json --no-html
+
+# Scan with XLSX export to custom output folder
+python docx-x-ray.py -d ./documents -s en -r -o xlsx -O ~/reports
+
+# Enable case-sensitive matching (matches "Password" but not "password")
+python docx-x-ray.py -d ./files -s en -c
 ```
+
+## Matching Behavior
+
+**Word Boundaries**: The tool uses word boundary matching to find whole words only. For example:
+- The term "heslo" (Czech for "password") will match in "moje heslo je tajné"
+- But will NOT match in "...lsIorII,respectively—arethestarting andtheslopeoftheirdependenceonF..."
+
+**Case Sensitivity**: By default, matching is case-insensitive. Use the `-c` flag to enable case-sensitive matching.
 
 ## Customization
 

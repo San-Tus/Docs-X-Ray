@@ -1,14 +1,17 @@
 import argparse
 import json
 import re
+import csv
 from pathlib import Path
 from collections import defaultdict
+from datetime import datetime
 
 import pdfplumber
 from colorama import Fore, Style, init
 from tabulate import tabulate
 from docx import Document
 import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
 from pptx import Presentation
 from striprtf.striprtf import rtf_to_text
 from odf import text, teletype
@@ -48,14 +51,28 @@ SUPPORTED_EXTENSIONS = [
 ]
 
 
-def load_sensitive_words(json_path: Path):
+def load_sensitive_words(json_path: Path, case_sensitive: bool = False):
+    """
+    Load sensitive words and compile them as regex patterns with word boundaries.
+
+    Args:
+        json_path: Path to the JSON file containing sensitive words
+        case_sensitive: If True, matching will be case-sensitive
+
+    Returns:
+        Tuple of (raw data dict, compiled patterns dict)
+    """
     with json_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
     compiled = {}
     for category, words in data.items():
-        compiled[category] = [
-            re.compile(re.escape(word), re.IGNORECASE) for word in words
-        ]
+        compiled[category] = []
+        for word in words:
+            # Add word boundaries to match whole words only
+            # \b matches word boundaries (between \w and \W)
+            pattern = r'\b' + re.escape(word) + r'\b'
+            flags = 0 if case_sensitive else re.IGNORECASE
+            compiled[category].append(re.compile(pattern, flags))
     return data, compiled
 
 
@@ -370,8 +387,9 @@ def scan_file_for_sensitive_words(file_path: Path, patterns_by_category: dict):
             for pattern in patterns:
                 matches = list(pattern.finditer(text))
                 if matches:
-                    word = pattern.pattern
-                    word_clean = re.sub(r"\\", "", word)
+                    # Extract the actual matched text from the first match
+                    # instead of trying to clean the pattern
+                    word_clean = matches[0].group(0)
 
                     if category not in results:
                         results[category] = {}
@@ -421,8 +439,133 @@ def print_results(file_name: str, results: dict):
                 print(f"{ctx['before']}{Fore.RED}{Style.BRIGHT}{ctx['matched']}{Style.RESET_ALL}{ctx['after']}")
 
 
-def scan_folder(folder: Path, sensitive_json: Path, sensitivity_list: str, generate_html: bool = True, report_lang: str = "en", recursive: bool = False):
-    _, compiled_patterns = load_sensitive_words(sensitive_json)
+def export_statistics_csv(stats: dict, output_path: Path, total_files: int, files_with_hits: int, total_matches: int):
+    """Export statistics to CSV format."""
+    try:
+        with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+
+            # Write header
+            writer.writerow(['Category', 'Sensitive Term', 'Total Occurrences'])
+
+            # Write data
+            for category, words in sorted(stats.items()):
+                for word, count in sorted(words.items(), key=lambda x: x[1], reverse=True):
+                    writer.writerow([category, word, count])
+
+            # Write summary
+            writer.writerow([])
+            writer.writerow(['Summary Statistics'])
+            writer.writerow(['Total files scanned', total_files])
+            writer.writerow(['Files with hits', files_with_hits])
+            writer.writerow(['Total matches found', total_matches])
+            writer.writerow(['Unique terms found', sum(len(words) for words in stats.values())])
+            writer.writerow(['Categories with findings', len(stats)])
+
+        print(f"{Fore.GREEN}✓ CSV report exported: {Style.BRIGHT}{output_path}{Style.RESET_ALL}")
+    except Exception as e:
+        print(f"{Fore.RED}✗ Error exporting CSV: {e}{Style.RESET_ALL}")
+
+
+def export_statistics_xlsx(stats: dict, output_path: Path, total_files: int, files_with_hits: int, total_matches: int):
+    """Export statistics to XLSX format with formatting."""
+    try:
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Statistics"
+
+        # Header formatting
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_font = Font(color="FFFFFF", bold=True)
+
+        # Write headers
+        headers = ['Category', 'Sensitive Term', 'Total Occurrences']
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col, value=header)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal='center')
+
+        # Write data
+        row = 2
+        for category, words in sorted(stats.items()):
+            for word, count in sorted(words.items(), key=lambda x: x[1], reverse=True):
+                ws.cell(row=row, column=1, value=category)
+                ws.cell(row=row, column=2, value=word)
+                ws.cell(row=row, column=3, value=count)
+                row += 1
+
+        # Adjust column widths
+        ws.column_dimensions['A'].width = 25
+        ws.column_dimensions['B'].width = 30
+        ws.column_dimensions['C'].width = 20
+
+        # Write summary
+        row += 2
+        summary_fill = PatternFill(start_color="E7E6E6", end_color="E7E6E6", fill_type="solid")
+        summary_font = Font(bold=True)
+
+        cell = ws.cell(row=row, column=1, value="Summary Statistics")
+        cell.fill = summary_fill
+        cell.font = summary_font
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
+
+        row += 1
+        summary_data = [
+            ['Total files scanned', total_files],
+            ['Files with hits', files_with_hits],
+            ['Total matches found', total_matches],
+            ['Unique terms found', sum(len(words) for words in stats.values())],
+            ['Categories with findings', len(stats)]
+        ]
+
+        for label, value in summary_data:
+            ws.cell(row=row, column=1, value=label)
+            ws.cell(row=row, column=2, value=value)
+            row += 1
+
+        wb.save(output_path)
+        print(f"{Fore.GREEN}✓ XLSX report exported: {Style.BRIGHT}{output_path}{Style.RESET_ALL}")
+    except Exception as e:
+        print(f"{Fore.RED}✗ Error exporting XLSX: {e}{Style.RESET_ALL}")
+
+
+def export_statistics_json(stats: dict, output_path: Path, total_files: int, files_with_hits: int, total_matches: int, file_types: dict):
+    """Export statistics to JSON format."""
+    try:
+        # Prepare data structure
+        export_data = {
+            "summary": {
+                "total_files_scanned": total_files,
+                "files_with_hits": files_with_hits,
+                "total_matches": total_matches,
+                "unique_terms_found": sum(len(words) for words in stats.values()),
+                "categories_with_findings": len(stats),
+                "scan_timestamp": datetime.now().isoformat()
+            },
+            "file_types": file_types,
+            "findings": {}
+        }
+
+        # Convert stats to JSON-friendly format
+        for category, words in sorted(stats.items()):
+            export_data["findings"][category] = []
+            for word, count in sorted(words.items(), key=lambda x: x[1], reverse=True):
+                export_data["findings"][category].append({
+                    "term": word,
+                    "occurrences": count
+                })
+
+        with open(output_path, 'w', encoding='utf-8') as jsonfile:
+            json.dump(export_data, jsonfile, indent=2, ensure_ascii=False)
+
+        print(f"{Fore.GREEN}✓ JSON report exported: {Style.BRIGHT}{output_path}{Style.RESET_ALL}")
+    except Exception as e:
+        print(f"{Fore.RED}✗ Error exporting JSON: {e}{Style.RESET_ALL}")
+
+
+def scan_folder(folder: Path, sensitive_json: Path, sensitivity_list: str, generate_html: bool = True, report_lang: str = "en", recursive: bool = False, output_formats: list = None, output_dir: Path = None, case_sensitive: bool = False):
+    _, compiled_patterns = load_sensitive_words(sensitive_json, case_sensitive=case_sensitive)
 
     # Collect all supported files
     all_files = []
@@ -477,11 +620,15 @@ def scan_folder(folder: Path, sensitive_json: Path, sensitivity_list: str, gener
     # Print summary statistics
     print_summary_statistics(global_stats, total_matches, len(all_files))
 
+    # Determine output directory
+    if output_dir is None:
+        output_dir = Path(__file__).resolve().parent
+    else:
+        output_dir.mkdir(parents=True, exist_ok=True)
+
     # Generate HTML report
     if generate_html:
-        # Get script directory
-        script_dir = Path(__file__).resolve().parent
-        html_output = script_dir / f"scan_report_{sensitivity_list}.html"
+        html_output = output_dir / f"scan_report_{sensitivity_list}.html"
         try:
             generate_html_report(
                 scan_results=scan_results,
@@ -497,6 +644,24 @@ def scan_folder(folder: Path, sensitive_json: Path, sensitivity_list: str, gener
             print(f"\n{Fore.GREEN}✓ HTML report generated: {Style.BRIGHT}{html_output}{Style.RESET_ALL}")
         except Exception as e:
             print(f"\n{Fore.RED}✗ Error generating HTML report: {e}{Style.RESET_ALL}")
+
+    # Export statistics in requested formats
+    if output_formats and global_stats:
+        print(f"\n{Fore.CYAN}{'='*80}")
+        print(f"{Fore.CYAN}{Style.BRIGHT}📊 EXPORTING STATISTICS")
+        print(f"{Fore.CYAN}{'='*80}{Style.RESET_ALL}\n")
+
+        if 'csv' in output_formats:
+            csv_output = output_dir / f"statistics_{sensitivity_list}.csv"
+            export_statistics_csv(global_stats, csv_output, len(all_files), files_with_hits, total_matches)
+
+        if 'xlsx' in output_formats:
+            xlsx_output = output_dir / f"statistics_{sensitivity_list}.xlsx"
+            export_statistics_xlsx(global_stats, xlsx_output, len(all_files), files_with_hits, total_matches)
+
+        if 'json' in output_formats:
+            json_output = output_dir / f"statistics_{sensitivity_list}.json"
+            export_statistics_json(global_stats, json_output, len(all_files), files_with_hits, total_matches, dict(file_types))
 
 
 def print_summary_statistics(stats: dict, total_matches: int, total_files: int):
@@ -534,13 +699,13 @@ def print_summary_statistics(stats: dict, total_matches: int, total_files: int):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Scan documents for sensitive words and phrases"
+        description="Docs X-Ray: Scan documents and code for sensitive words and phrases"
     )
     parser.add_argument(
         "-d",
         "--directory",
         required=True,
-        help="Directory containing document files",
+        help="Directory containing document files to scan",
     )
     parser.add_argument(
         "-s",
@@ -567,6 +732,23 @@ def main():
         default="en",
         help="Report language: 'en' for English or 'cz' for Czech (default: en)",
     )
+    parser.add_argument(
+        "-o",
+        "--output-format",
+        choices=["csv", "xlsx", "json", "all"],
+        help="Export statistics in specified format(s): csv, xlsx, json, or all for all formats",
+    )
+    parser.add_argument(
+        "-O",
+        "--output-dir",
+        help="Output directory for all reports and statistics (default: script directory)",
+    )
+    parser.add_argument(
+        "-c",
+        "--case-sensitive",
+        action="store_true",
+        help="Enable case-sensitive matching (default: case-insensitive)",
+    )
     args = parser.parse_args()
 
     folder_to_scan = Path(args.directory).expanduser()
@@ -582,10 +764,38 @@ def main():
         print(f"{Fore.YELLOW}Please ensure the file exists in the script directory.{Style.RESET_ALL}")
         return
 
+    # Parse output formats
+    output_formats = None
+    if args.output_format:
+        if args.output_format == "all":
+            output_formats = ["csv", "xlsx", "json"]
+        else:
+            output_formats = [args.output_format]
+
+    # Parse output directory
+    output_dir = None
+    if args.output_dir:
+        output_dir = Path(args.output_dir).expanduser()
+
     print(f"{Fore.GREEN}Using sensitivity list: {Style.BRIGHT}{args.sensitivity_list.upper()}{Style.RESET_ALL} ({sensitive_words_file.name})")
     if args.recursive:
         print(f"{Fore.CYAN}Recursive mode: {Style.BRIGHT}ENABLED{Style.RESET_ALL} - scanning all subdirectories")
-    scan_folder(folder_to_scan, sensitive_words_file, args.sensitivity_list, generate_html=not args.no_html, report_lang=args.lang, recursive=args.recursive)
+    if args.case_sensitive:
+        print(f"{Fore.CYAN}Case-sensitive matching: {Style.BRIGHT}ENABLED{Style.RESET_ALL}")
+    if output_dir:
+        print(f"{Fore.CYAN}Output directory: {Style.BRIGHT}{output_dir}{Style.RESET_ALL}")
+
+    scan_folder(
+        folder_to_scan,
+        sensitive_words_file,
+        args.sensitivity_list,
+        generate_html=not args.no_html,
+        report_lang=args.lang,
+        recursive=args.recursive,
+        output_formats=output_formats,
+        output_dir=output_dir,
+        case_sensitive=args.case_sensitive
+    )
 
 
 if __name__ == "__main__":

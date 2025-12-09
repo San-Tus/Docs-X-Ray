@@ -86,8 +86,8 @@
     "webhook_secret",
     "signing_key",
     "master_key",
-    "šifrovací heslo",
-    "sůl",
-    "seed"
+    "šifrovací",
+    "šifrátor",
+    "salt"
   ]
 }
