@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(move content-anlyzer.py docx-x-ray.py)"
-    ],
-    "deny": [],
-    "ask": []
-  }
-}

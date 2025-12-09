@@ -468,20 +468,22 @@ def export_statistics_csv(stats: dict, output_path: Path, total_files: int, file
 
 
 def export_statistics_xlsx(stats: dict, output_path: Path, total_files: int, files_with_hits: int, total_matches: int):
-    """Export statistics to XLSX format with formatting."""
+    """Export statistics to XLSX format with formatting in two sheets."""
     try:
         wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Statistics"
 
         # Header formatting
         header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
         header_font = Font(color="FFFFFF", bold=True)
 
-        # Write headers
+        # ========== Sheet 1: Occurrences ==========
+        ws_occurrences = wb.active
+        ws_occurrences.title = "Occurrences"
+
+        # Write headers for Occurrences sheet
         headers = ['Category', 'Sensitive Term', 'Total Occurrences']
         for col, header in enumerate(headers, 1):
-            cell = ws.cell(row=1, column=col, value=header)
+            cell = ws_occurrences.cell(row=1, column=col, value=header)
             cell.fill = header_fill
             cell.font = header_font
             cell.alignment = Alignment(horizontal='center')
@@ -490,28 +492,28 @@ def export_statistics_xlsx(stats: dict, output_path: Path, total_files: int, fil
         row = 2
         for category, words in sorted(stats.items()):
             for word, count in sorted(words.items(), key=lambda x: x[1], reverse=True):
-                ws.cell(row=row, column=1, value=category)
-                ws.cell(row=row, column=2, value=word)
-                ws.cell(row=row, column=3, value=count)
+                ws_occurrences.cell(row=row, column=1, value=category)
+                ws_occurrences.cell(row=row, column=2, value=word)
+                ws_occurrences.cell(row=row, column=3, value=count)
                 row += 1
 
         # Adjust column widths
-        ws.column_dimensions['A'].width = 25
-        ws.column_dimensions['B'].width = 30
-        ws.column_dimensions['C'].width = 20
+        ws_occurrences.column_dimensions['A'].width = 25
+        ws_occurrences.column_dimensions['B'].width = 30
+        ws_occurrences.column_dimensions['C'].width = 20
 
-        # Write summary
-        row += 2
+        # ========== Sheet 2: Statistics ==========
+        ws_stats = wb.create_sheet(title="Statistics")
+
+        # Summary formatting
         summary_fill = PatternFill(start_color="E7E6E6", end_color="E7E6E6", fill_type="solid")
         summary_font = Font(bold=True)
+        label_font = Font(bold=True)
 
-        cell = ws.cell(row=row, column=1, value="Summary Statistics")
-        cell.fill = summary_fill
-        cell.font = summary_font
-        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=3)
-
-        row += 1
+        # Write summary statistics
+        row = 1
         summary_data = [
+            ['Metric', 'Value'],
             ['Total files scanned', total_files],
             ['Files with hits', files_with_hits],
             ['Total matches found', total_matches],
@@ -519,10 +521,23 @@ def export_statistics_xlsx(stats: dict, output_path: Path, total_files: int, fil
             ['Categories with findings', len(stats)]
         ]
 
-        for label, value in summary_data:
-            ws.cell(row=row, column=1, value=label)
-            ws.cell(row=row, column=2, value=value)
-            row += 1
+        for idx, (label, value) in enumerate(summary_data):
+            cell_label = ws_stats.cell(row=row + idx, column=1, value=label)
+            cell_value = ws_stats.cell(row=row + idx, column=2, value=value)
+
+            if idx == 0:  # Header row
+                cell_label.fill = header_fill
+                cell_label.font = header_font
+                cell_label.alignment = Alignment(horizontal='center')
+                cell_value.fill = header_fill
+                cell_value.font = header_font
+                cell_value.alignment = Alignment(horizontal='center')
+            else:
+                cell_label.font = label_font
+
+        # Adjust column widths
+        ws_stats.column_dimensions['A'].width = 30
+        ws_stats.column_dimensions['B'].width = 20
 
         wb.save(output_path)
         print(f"{Fore.GREEN}✓ XLSX report exported: {Style.BRIGHT}{output_path}{Style.RESET_ALL}")
