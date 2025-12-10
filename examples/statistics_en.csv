@@ -1,0 +1,21 @@
+Category,Sensitive Term,Total Occurrences
+confidentiality,secret,18
+confidentiality,Secret,3
+confidentiality,classified,2
+confidentiality,SECRET,2
+confidentiality,proprietary,1
+credentials,password,6
+credentials,username,1
+financial,swift,1
+health,diagnosis,1
+location,address,16
+location,GPS,2
+location,Address,1
+personal_identifiers,email address,3
+
+Summary Statistics
+Total files scanned,77
+Files with hits,22
+Total matches found,57
+Unique terms found,13
+Categories with findings,6

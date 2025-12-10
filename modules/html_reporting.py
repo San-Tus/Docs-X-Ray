@@ -4,6 +4,8 @@ from collections import defaultdict
 from typing import Dict, List, Any
 import html
 
+from .svg_icons import get_category_icon, get_status_icon
+
 
 # Translation dictionaries
 TRANSLATIONS = {
@@ -444,13 +446,20 @@ def _get_css_styles() -> str:
         }
 
         .category-badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             background: #219b95;
             color: white;
             padding: 6px 14px;
             font-size: 0.8em;
             font-weight: 600;
             letter-spacing: 0.3px;
+        }
+
+        .category-badge svg {
+            flex-shrink: 0;
+            vertical-align: middle;
         }
 
         .count-badge {
@@ -588,12 +597,19 @@ def _get_css_styles() -> str:
         }
 
         .category-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             color: #0c0c14;
             margin-bottom: 16px;
             font-size: 1em;
             font-weight: 600;
             padding-bottom: 8px;
             border-bottom: 2px solid #219b95;
+        }
+
+        .category-section h4 svg {
+            flex-shrink: 0;
         }
 
         .match-item {
@@ -851,9 +867,12 @@ def _generate_categories_overview(global_stats: Dict[str, Dict[str, int]], repor
             for word, count in top_words
         ])
 
+        # Get category icon
+        category_icon = get_category_icon(category, size=18, color='white')
+
         table_rows.append(f"""
             <tr>
-                <td><span class="category-badge">{escape_html(category)}</span></td>
+                <td><span class="category-badge">{category_icon} {escape_html(category)}</span></td>
                 <td><span class="count-badge">{unique_count}</span></td>
                 <td><span class="count-badge">{total_count}</span></td>
                 <td>{top_words_html}</td>
@@ -998,9 +1017,12 @@ def _generate_file_findings(results: Dict[str, Dict[str, Any]], report_lang: str
                 </div>
             """)
 
+        # Get category icon
+        category_icon = get_category_icon(category, size=20, color='#219b95')
+
         findings_html.append(f"""
             <div class="category-section">
-                <h4>{escape_html(category)}</h4>
+                <h4>{category_icon} {escape_html(category)}</h4>
                 {''.join(matches_html)}
             </div>
         """)

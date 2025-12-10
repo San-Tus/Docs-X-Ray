@@ -1,0 +1,79 @@
+{
+  "summary": {
+    "total_files_scanned": 77,
+    "files_with_hits": 22,
+    "total_matches": 57,
+    "unique_terms_found": 13,
+    "categories_with_findings": 6,
+    "scan_timestamp": "2025-12-10T06:53:23.762599"
+  },
+  "file_types": {
+    ".pdf": 77
+  },
+  "findings": {
+    "confidentiality": [
+      {
+        "term": "secret",
+        "occurrences": 18
+      },
+      {
+        "term": "Secret",
+        "occurrences": 3
+      },
+      {
+        "term": "classified",
+        "occurrences": 2
+      },
+      {
+        "term": "SECRET",
+        "occurrences": 2
+      },
+      {
+        "term": "proprietary",
+        "occurrences": 1
+      }
+    ],
+    "credentials": [
+      {
+        "term": "password",
+        "occurrences": 6
+      },
+      {
+        "term": "username",
+        "occurrences": 1
+      }
+    ],
+    "financial": [
+      {
+        "term": "swift",
+        "occurrences": 1
+      }
+    ],
+    "health": [
+      {
+        "term": "diagnosis",
+        "occurrences": 1
+      }
+    ],
+    "location": [
+      {
+        "term": "address",
+        "occurrences": 16
+      },
+      {
+        "term": "GPS",
+        "occurrences": 2
+      },
+      {
+        "term": "Address",
+        "occurrences": 1
+      }
+    ],
+    "personal_identifiers": [
+      {
+        "term": "email address",
+        "occurrences": 3
+      }
+    ]
+  }
+}
