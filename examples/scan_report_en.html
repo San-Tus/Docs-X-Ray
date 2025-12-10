@@ -1,0 +1,2663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Analysis Report</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 0;
+            color: #0c0c14;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        header {
+            background: linear-gradient(135deg, #f0f9f9 0%, #e0f4f4 100%);
+            color: #0c0c14;
+            padding: 32px 48px 48px;
+            border-bottom: 3px solid #219b95;
+        }
+
+        header h1 {
+            font-size: 1.75em;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin: 0;
+            color: #0c0c14;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .info-item {
+            display: flex;
+            gap: 6px;
+        }
+
+        .info-label {
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #0c0c14;
+        }
+
+        .header-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .header-summary-card {
+            background: white;
+            border-left: 3px solid #219b95;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .header-summary-card h3 {
+            font-size: 2em;
+            font-weight: 700;
+            color: #219b95;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .header-summary-card p {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .file-types-section {
+            margin-top: 24px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+            border: 1px solid rgba(33, 155, 149, 0.2);
+        }
+
+        .file-types-title {
+            font-size: 0.85em;
+            color: #219b95;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin: 0 0 12px 0;
+        }
+
+        .file-types-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .file-type-badge {
+            display: inline-flex;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 3px;
+            font-size: 0.85em;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-type-badge .ext {
+            background: #219b95;
+            color: white;
+            padding: 6px 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .file-type-badge .count {
+            background: white;
+            color: #0c0c14;
+            padding: 6px 10px;
+            font-weight: 600;
+            border: 1px solid #e6e6e6;
+            border-left: none;
+        }
+
+        .section {
+            padding: 32px 48px;
+            border-bottom: 1px solid #e6e6e6;
+            background: #fafafa;
+        }
+
+        .section:nth-child(even) {
+            background: white;
+        }
+
+        .section-title {
+            font-size: 1.25em;
+            color: #0c0c14;
+            margin-bottom: 24px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: #219b95;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .toggle-clean-btn {
+            background: #f5f5f5;
+            border: 1px solid #d0d0d0;
+            color: #0c0c14;
+            padding: 10px 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .toggle-clean-btn:hover {
+            background: #219b95;
+            color: white;
+            border-color: #219b95;
+        }
+
+        .file-card.clean-file {
+            display: none;
+        }
+
+        .file-card.clean-file.show {
+            display: block;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #d0d0d0;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .summary-card:hover {
+            border-color: #219b95;
+            box-shadow: 0 2px 8px rgba(33, 155, 149, 0.1);
+        }
+
+        .summary-card h3 {
+            font-size: 2.25em;
+            font-weight: 700;
+            color: #219b95;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .summary-card p {
+            font-size: 0.875em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .category-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border: 1px solid #d0d0d0;
+        }
+
+        .category-table th {
+            background: #0c0c14;
+            color: #e6e6e6;
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .category-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e6e6e6;
+            color: #0c0c14;
+        }
+
+        .category-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .category-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #219b95;
+            color: white;
+            padding: 6px 14px;
+            font-size: 0.8em;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .category-badge svg {
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+
+        .count-badge {
+            display: inline-block;
+            background: #0c0c14;
+            color: white;
+            padding: 6px 14px;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: center;
+            font-size: 0.875em;
+        }
+
+        .term-badge {
+            display: inline-flex;
+            margin-right: 8px;
+            margin-bottom: 4px;
+            overflow: hidden;
+            font-size: 0.85em;
+        }
+
+        .term-word {
+            background: #219b95;
+            color: white;
+            padding: 6px 10px;
+            font-weight: 600;
+        }
+
+        .term-count {
+            background: #0c0c14;
+            color: white;
+            padding: 6px 10px;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .file-card {
+            background: white;
+            border: 1px solid #d0d0d0;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .file-card:hover {
+            border-color: #219b95;
+            box-shadow: 0 2px 8px rgba(33, 155, 149, 0.1);
+        }
+
+        .file-card-header {
+            background: white;
+            border-bottom: 1px solid #e6e6e6;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .file-card-header h3 {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #0c0c14;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .terms-preview {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .term-preview-badge {
+            display: inline-block;
+            background: rgba(33, 155, 149, 0.15);
+            color: #0c0c14;
+            padding: 4px 10px;
+            font-size: 0.75em;
+            font-weight: 600;
+            border-radius: 3px;
+            border: 1px solid rgba(33, 155, 149, 0.3);
+        }
+
+        .term-count-mini {
+            display: inline-block;
+            background: #219b95;
+            color: white;
+            padding: 2px 6px;
+            margin-left: 4px;
+            border-radius: 2px;
+            font-size: 0.9em;
+            font-weight: 700;
+        }
+
+        .more-terms {
+            font-size: 0.75em;
+            color: #666;
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        .file-link {
+            color: #219b95;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(33, 155, 149, 0.1);
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .file-link:hover {
+            background: #219b95;
+            color: white;
+        }
+
+        .file-card-body {
+            padding: 24px;
+            display: none;
+            background: #f9f9f9;
+        }
+
+        .file-card-body.active {
+            display: block;
+        }
+
+        .category-section {
+            margin-bottom: 24px;
+            padding: 0;
+        }
+
+        .category-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0c0c14;
+            margin-bottom: 16px;
+            font-size: 1em;
+            font-weight: 600;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #219b95;
+        }
+
+        .category-section h4 svg {
+            flex-shrink: 0;
+        }
+
+        .match-item {
+            background: white;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 3px solid #219b95;
+        }
+
+        .match-word {
+            font-weight: 600;
+            color: #0c0c14;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .match-details {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 12px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .context {
+            background: #f5f5f5;
+            padding: 12px;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            border-left: 2px solid #219b95;
+            border: 1px solid #e6e6e6;
+        }
+
+        .context-match {
+            background: #219b95;
+            color: white;
+            font-weight: 600;
+            padding: 2px 6px;
+        }
+
+        .no-findings {
+            text-align: center;
+            padding: 32px;
+            color: #219b95;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        .toggle-icon {
+            transition: transform 0.2s ease;
+            color: #219b95;
+            font-size: 0.7em;
+        }
+
+        .toggle-icon.active {
+            transform: rotate(90deg);
+        }
+
+        footer {
+            background: #0c0c14;
+            color: #e6e6e6;
+            text-align: center;
+            padding: 24px;
+            font-size: 0.85em;
+        }
+
+        .status-clean {
+            color: #219b95;
+            font-weight: 600;
+            font-size: 0.875em;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-warning {
+            color: #e67e22;
+            font-weight: 600;
+            font-size: 0.875em;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-danger {
+            color: #c0392b;
+            font-weight: 600;
+            font-size: 0.875em;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        @media (max-width: 768px) {
+            header, .section {
+                padding: 24px;
+            }
+
+            .header-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .header-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .file-card-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .match-details {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Content Analysis Report</h1>
+            <div class="header-info">
+                <div class="info-item">
+                    <span class="info-label">Generated:</span>
+                    <span class="info-value">2025-12-10 06:53:23</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Sensitivity List:</span>
+                    <span class="info-value">EN</span>
+                </div>
+            </div>
+            
+            <div class="header-summary">
+                <div class="header-summary-card">
+                    <h3>77</h3>
+                    <p>Files Scanned</p>
+                </div>
+                <div class="header-summary-card">
+                    <h3>22</h3>
+                    <p>Files with Hits</p>
+                </div>
+                <div class="header-summary-card">
+                    <h3>57</h3>
+                    <p>Total Matches</p>
+                </div>
+                <div class="header-summary-card">
+                    <h3>13</h3>
+                    <p>Unique Terms</p>
+                </div>
+                <div class="header-summary-card">
+                    <h3>6</h3>
+                    <p>Categories</p>
+                </div>
+            </div>
+    
+            
+            <div class="file-types-section">
+                <h3 class="file-types-title">File Types Analyzed</h3>
+                <div class="file-types-list">
+                    <span class="file-type-badge"><span class="ext">.pdf</span><span class="count">77</span></span>
+                </div>
+            </div>
+    
+        </header>
+
+        
+        <section class="section" id="categories">
+            <h2 class="section-title">Categories Overview</h2>
+            <table class="category-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Unique Terms</th>
+                        <th>Total Occurrences</th>
+                        <th>Top Terms</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td><span class="category-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</span></td>
+                <td><span class="count-badge">5</span></td>
+                <td><span class="count-badge">26</span></td>
+                <td><span class="term-badge"><span class="term-word">secret</span><span class="term-count">18</span></span> <span class="term-badge"><span class="term-word">Secret</span><span class="term-count">3</span></span> <span class="term-badge"><span class="term-word">classified</span><span class="term-count">2</span></span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="category-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M5.039 19q-.441 0-.74-.299T4 17.961v-.607q0-.62.36-1.159q.361-.54.97-.837q1.416-.68 2.834-1.018Q9.58 14 11 14q.446 0 .883.041q.436.042.883.111q.217.044.34.174t.144.347q.108.944.566 1.799t1.197 1.464q.04.03.064.073q.023.043.023.095v.127q0 .31-.23.54t-.54.229zM11 11.77q-1.246 0-2.123-.878Q8 10.016 8 8.77t.877-2.123T11 5.77t2.123.877T14 8.77t-.877 2.123T11 11.77m7.308 2.673q.31 0 .539-.239q.23-.24.23-.55q0-.309-.23-.538t-.54-.23t-.548.23t-.24.539t.24.549t.549.24m.092 6.669l-.75-.77q-.03-.03-.13-.273v-3.43q-.85-.248-1.387-.96q-.537-.71-.537-1.621q0-1.123.794-1.917q.794-.795 1.918-.795t1.907.794t.785 1.918q0 .875-.484 1.538q-.483.663-1.247.962l.67.669q.13.13.13.292t-.13.293l-.589.588q-.13.13-.13.283t.13.283l.608.588q.13.13.13.283t-.13.282l-.992.993q-.131.13-.283.13t-.283-.13"/></svg> credentials</span></td>
+                <td><span class="count-badge">2</span></td>
+                <td><span class="count-badge">7</span></td>
+                <td><span class="term-badge"><span class="term-word">password</span><span class="term-count">6</span></span> <span class="term-badge"><span class="term-word">username</span><span class="term-count">1</span></span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="category-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M6 20q-.825 0-1.412-.587T4 18v-2h2v2h12v-2h2v2q0 .825-.587 1.413T18 20zm-2-4v-2h2v2zm0-4v-2h2v2zm0-4V6q0-.825.588-1.412T6 4h12q.825 0 1.413.588T20 6v2h-2V6H6v2zm4 2h8q.425 0 .713.288T17 11v2q0 .425-.288.713T16 14H8q-.425 0-.712-.288T7 13v-2q0-.425.288-.712T8 10m10 10v-2h2v2zm0-8V6h2v6z"/></svg> financial</span></td>
+                <td><span class="count-badge">1</span></td>
+                <td><span class="count-badge">1</span></td>
+                <td><span class="term-badge"><span class="term-word">swift</span><span class="term-count">1</span></span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="category-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M9.616 20.846q-.667 0-1.141-.474Q8 19.897 8 19.23V16H4.77q-.667 0-1.142-.475q-.474-.474-.474-1.14V12.5h5.565l1.854 2.78q.068.105.168.162t.232.058q.173 0 .304-.094t.192-.26l1.677-5.03l1.427 2.146q.076.106.189.172T15 12.5h5.846v1.885q0 .666-.474 1.14q-.475.475-1.141.475H16v3.23q0 .667-.475 1.142q-.474.474-1.14.474zm1.238-6.961l-1.452-2.166q-.067-.104-.167-.161T9 11.5H3.154V9.616q0-.667.474-1.141Q4.103 8 4.77 8H8V4.77q0-.667.475-1.142q.474-.474 1.14-.474h4.77q.666 0 1.14.474Q16 4.103 16 4.77V8h3.23q.667 0 1.142.475q.474.474.474 1.14V11.5h-5.59L13.42 8.72q-.064-.098-.18-.159t-.245-.061q-.167 0-.285.094t-.18.26z"/></svg> health</span></td>
+                <td><span class="count-badge">1</span></td>
+                <td><span class="count-badge">1</span></td>
+                <td><span class="term-badge"><span class="term-word">diagnosis</span><span class="term-count">1</span></span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="category-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</span></td>
+                <td><span class="count-badge">3</span></td>
+                <td><span class="count-badge">19</span></td>
+                <td><span class="term-badge"><span class="term-word">address</span><span class="term-count">16</span></span> <span class="term-badge"><span class="term-word">GPS</span><span class="term-count">2</span></span> <span class="term-badge"><span class="term-word">Address</span><span class="term-count">1</span></span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="category-badge"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M12 12q-1.65 0-2.825-1.175T8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12m-8 8v-2.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2V20z"/></svg> personal_identifiers</span></td>
+                <td><span class="count-badge">1</span></td>
+                <td><span class="count-badge">3</span></td>
+                <td><span class="term-badge"><span class="term-word">email address</span><span class="term-count">3</span></span></td>
+            </tr>
+        
+                </tbody>
+            </table>
+        </section>
+    
+
+        
+        <section class="section" id="files">
+            <div class="section-header">
+                <h2 class="section-title">Detailed File Results</h2>
+                <button id="toggle-clean-files" class="toggle-clean-btn">Show Clean Files (55)</button>
+            </div>
+            
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        20170123-Final-Ext-Ltr-frm-Dir-to-FS-re-standing-down-safe.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">secret <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/20170123-Final-Ext-Ltr-frm-Dir-to-FS-re-standing-down-safe.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 1</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...ty threats. While this work must remain <span class="context-match">secret</span>, you will know how many lives have been...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        20170123_ltr_frm_SOSFCA_to_Dir.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/20170123_ltr_frm_SOSFCA_to_Dir.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        20181218-GPG-Corp-Format-v0.2-SANITISED.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">address <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/20181218-GPG-Corp-Format-v0.2-SANITISED.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 1</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...nsure we are taking the right action to <span class="context-match">address</span> the pay gap. We believe that great mind...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        2020 Christmas Card Solution.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/2020%20Christmas%20Card%20Solution.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        2020 Christmas Card.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/2020%20Christmas%20Card.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        2023 GCHQ Christmas Challenge.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/2023%20GCHQ%20Christmas%20Challenge.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        2024 Combined Pay Gap External - Updated.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">address <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/2024%20Combined%20Pay%20Gap%20External%20-%20Updated.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 8</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...ment and progression space will help us <span class="context-match">address</span> inequality. Mean and median bonus gaps ...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Answers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Answers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Arabic Answers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Arabic%20Answers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Arabic Questions.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Arabic%20Questions.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        BHMPack - 11Plus.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">GPS <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/BHMPack%20-%2011Plus.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"GPS"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 10</span>
+                    </div>
+                    
+                    <div class="context">
+                        ... Hat v Ground sheet v Rope v Firewood v <span class="context-match">GPS</span> phone v Money v Blanket v Emergency she...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        BHMPack - 7to10Years.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">GPS <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/BHMPack%20-%207to10Years.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"GPS"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 9</span>
+                    </div>
+                    
+                    <div class="context">
+                        ... Hat v Ground sheet v Rope v Firewood v <span class="context-match">GPS</span> phone v Money v Blanket v Emergency she...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Bonus puzzle solution.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Bonus%20puzzle%20solution.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Certificates.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Certificates.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        CertificateSchools.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/CertificateSchools.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        CertificateStudents.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/CertificateStudents.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        CheltScienceFestivalTranscript.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">5 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">secret <span class="term-count-mini">3</span></span> <span class="term-preview-badge">proprietary <span class="term-count-mini">1</span></span> <span class="term-preview-badge">classified <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/CheltScienceFestivalTranscript.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"classified"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 4</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...ith a range of participants broadly, at <span class="context-match">classified</span> levels and unclassified levels, and it ...
+                    </div>
+                
+                </div>
+            
+                <div class="match-item">
+                    <div class="match-word">"proprietary"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 4</span>
+                    </div>
+                    
+                    <div class="context">
+                        ... that amount to commercial, or at least <span class="context-match">proprietary</span> secrets, in their own right. You wouldn...
+                    </div>
+                
+                </div>
+            
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 3</span>
+                        <span>Page(s): 3, 4, 8</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...y underpin everything that happens in a <span class="context-match">secret</span> intelligence organisation. I think it&#x27;s...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Christmas Challenge Lesson Plan.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Christmas%20Challenge%20Lesson%20Plan.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        ChristmasCard2019.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/ChristmasCard2019.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        ChristmasCard2019SolutionA.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/ChristmasCard2019SolutionA.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        ChristmasCard2019SolutionB.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/ChristmasCard2019SolutionB.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        ChristmasChallengeAnswers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/ChristmasChallengeAnswers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        ChristmasChallengeSchoolsAnswers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/ChristmasChallengeSchoolsAnswers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        ChristmasChallengeSchoolsHints.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/ChristmasChallengeSchoolsHints.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Director CyberUK2018 As Delivered version .pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Director%20CyberUK2018%20As%20Delivered%20version%20.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Director GCHQ Fullerton Lecture - 25FEB19 - AS DELIVERED - .pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">password <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Director%20GCHQ%20Fullerton%20Lecture%20-%2025FEB19%20-%20AS%20DELIVERED%20-%20.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M5.039 19q-.441 0-.74-.299T4 17.961v-.607q0-.62.36-1.159q.361-.54.97-.837q1.416-.68 2.834-1.018Q9.58 14 11 14q.446 0 .883.041q.436.042.883.111q.217.044.34.174t.144.347q.108.944.566 1.799t1.197 1.464q.04.03.064.073q.023.043.023.095v.127q0 .31-.23.54t-.54.229zM11 11.77q-1.246 0-2.123-.878Q8 10.016 8 8.77t.877-2.123T11 5.77t2.123.877T14 8.77t-.877 2.123T11 11.77m7.308 2.673q.31 0 .539-.239q.23-.24.23-.55q0-.309-.23-.538t-.54-.23t-.548.23t-.24.539t.24.549t.549.24m.092 6.669l-.75-.77q-.03-.03-.13-.273v-3.43q-.85-.248-1.387-.96q-.537-.71-.537-1.621q0-1.123.794-1.917q.794-.795 1.918-.795t1.907.794t.785 1.918q0 .875-.484 1.538q-.483.663-1.247.962l.67.669q.13.13.13.292t-.13.293l-.589.588q-.13.13-.13.283t.13.283l.608.588q.13.13.13.283t-.13.282l-.992.993q-.131.13-.283.13t-.283-.13"/></svg> credentials</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"password"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 5</span>
+                    </div>
+                    
+                    <div class="context">
+                        ... do we break free of the limitations of <span class="context-match">password</span>-based user security? How do we make har...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Director GCHQ Keynote Speech CYBERUK 2019 - AS DELIVERED.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">2 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">password <span class="term-count-mini">1</span></span> <span class="term-preview-badge">secret <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Director%20GCHQ%20Keynote%20Speech%20CYBERUK%202019%20-%20AS%20DELIVERED.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 9</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...r our analysts to share time- critical, <span class="context-match">secret</span> information in a matter of seconds. Wit...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M5.039 19q-.441 0-.74-.299T4 17.961v-.607q0-.62.36-1.159q.361-.54.97-.837q1.416-.68 2.834-1.018Q9.58 14 11 14q.446 0 .883.041q.436.042.883.111q.217.044.34.174t.144.347q.108.944.566 1.799t1.197 1.464q.04.03.064.073q.023.043.023.095v.127q0 .31-.23.54t-.54.229zM11 11.77q-1.246 0-2.123-.878Q8 10.016 8 8.77t.877-2.123T11 5.77t2.123.877T14 8.77t-.877 2.123T11 11.77m7.308 2.673q.31 0 .539-.239q.23-.24.23-.55q0-.309-.23-.538t-.54-.23t-.548.23t-.24.539t.24.549t.549.24m.092 6.669l-.75-.77q-.03-.03-.13-.273v-3.43q-.85-.248-1.387-.96q-.537-.71-.537-1.621q0-1.123.794-1.917q.794-.795 1.918-.795t1.907.794t.785 1.918q0 .875-.484 1.538q-.483.663-1.247.962l.67.669q.13.13.13.292t-.13.293l-.589.588q-.13.13-.13.283t.13.283l.608.588q.13.13.13.283t-.13.282l-.992.993q-.131.13-.283.13t-.283-.13"/></svg> credentials</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"password"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 4</span>
+                    </div>
+                    
+                    <div class="context">
+                        ... 23.2 million victims of hacks used the <span class="context-match">password</span> 123456 to protect their accounts.
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        External GCHQ Gender Pay Gap Report 2021[1].pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/External%20GCHQ%20Gender%20Pay%20Gap%20Report%202021%5B1%5D.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        French Answers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/French%20Answers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        French Questions - Level 1.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/French%20Questions%20-%20Level%201.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        French Questions - Level 2.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/French%20Questions%20-%20Level%202.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Chrismtas Challenge Worksheet.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Chrismtas%20Challenge%20Worksheet.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Christmas Challenge 2024.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Christmas%20Challenge%202024.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Christmas Challenge Hints.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Christmas%20Challenge%20Hints.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Christmas Challenge Solution.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Christmas%20Challenge%20Solution.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Christmas Challenge Teaching Pack.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">3 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">secret <span class="term-count-mini">2</span></span> <span class="term-preview-badge">Secret <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Christmas%20Challenge%20Teaching%20Pack.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"Secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 3</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...curity Agencies, along with MI5 and the <span class="context-match">Secret</span> Intelligence Service (MI6). GCHQ protec...
+                    </div>
+                
+                </div>
+            
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 2</span>
+                        <span>Page(s): 2, 6</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...GCHQ Christmas Challenge to uncover our <span class="context-match">secret</span> seasonal message. The challenge is not ...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ External Branding Guidelines April 2018.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20External%20Branding%20Guidelines%20April%202018.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ gender and ethnicity pay gap report 2023.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">2 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">address <span class="term-count-mini">2</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20gender%20and%20ethnicity%20pay%20gap%20report%202023.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 2</span>
+                        <span>Page(s): 2, 7</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...rce the case to make further changes to <span class="context-match">address</span> barriers, and we continue to see change...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Gender Pay Gap report 2019.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">2 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">address <span class="term-count-mini">2</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Gender%20Pay%20Gap%20report%202019.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 2</span>
+                        <span>Page(s): 2, 3</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...hemes have been implemented in order to <span class="context-match">address</span> the Gender Pay Gap. For additional deta...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Gender Pay Gap Report 2020.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Gender%20Pay%20Gap%20Report%202020.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Gender Pay Gap Report 2022.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Gender%20Pay%20Gap%20Report%202022.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Wayra Manchester media release.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Wayra%20Manchester%20media%20release.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ Xmas Challenge 2023 - Registration Pack.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">2 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">Secret <span class="term-count-mini">1</span></span> <span class="term-preview-badge">secret <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ%20Xmas%20Challenge%202023%20-%20Registration%20Pack.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"Secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 2</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...curity Agencies, along with MI5 and the <span class="context-match">Secret</span> Intelligence Service (MI6). GCHQ protec...
+                    </div>
+                
+                </div>
+            
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 3</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...GCHQ Christmas Challenge to uncover our <span class="context-match">secret</span> seasonal message. The challenge is not ...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQ_Puzzle_2015_-_Solutions.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">2 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">SECRET <span class="term-count-mini">2</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQ_Puzzle_2015_-_Solutions.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"SECRET"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 2</span>
+                        <span>Page(s): 9, 10</span>
+                    </div>
+                    
+                    <div class="context">
+                        ... STAND OIL ZONE BOUGHT AUTO PRIM BLAISE <span class="context-match">SECRET</span> ICECAP ON CHIC MONTY HONOURABLE FI THE ...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQAIPaper.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">9 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">secret <span class="term-count-mini">3</span></span> <span class="term-preview-badge">Secret <span class="term-count-mini">1</span></span> <span class="term-preview-badge">classified <span class="term-count-mini">1</span></span> <span class="term-preview-badge">diagnosis <span class="term-count-mini">1</span></span> <span class="term-preview-badge">address <span class="term-count-mini">3</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQAIPaper.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"Secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 10</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...security agencies with MI5, the Police, <span class="context-match">Secret</span> Intelligence within the law at all time...
+                    </div>
+                
+                </div>
+            
+                <div class="match-item">
+                    <div class="match-word">"classified"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 14</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...ds to counter the unique – often highly <span class="context-match">classified</span> – specific vulnerabilities unique to AI...
+                    </div>
+                
+                </div>
+            
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 3</span>
+                        <span>Page(s): 5, 14, 20</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...bes to function, but it was the world’s <span class="context-match">secret</span> activity, but one which applies Althoug...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M9.616 20.846q-.667 0-1.141-.474Q8 19.897 8 19.23V16H4.77q-.667 0-1.142-.475q-.474-.474-.474-1.14V12.5h5.565l1.854 2.78q.068.105.168.162t.232.058q.173 0 .304-.094t.192-.26l1.677-5.03l1.427 2.146q.076.106.189.172T15 12.5h5.846v1.885q0 .666-.474 1.14q-.475.475-1.141.475H16v3.23q0 .667-.475 1.142q-.474.474-1.14.474zm1.238-6.961l-1.452-2.166q-.067-.104-.167-.161T9 11.5H3.154V9.616q0-.667.474-1.141Q4.103 8 4.77 8H8V4.77q0-.667.475-1.142q.474-.474 1.14-.474h4.77q.666 0 1.14.474Q16 4.103 16 4.77V8h3.23q.667 0 1.142.475q.474.474.474 1.14V11.5h-5.59L13.42 8.72q-.064-.098-.18-.159t-.245-.061q-.167 0-.285.094t-.18.26z"/></svg> health</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"diagnosis"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 7</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...e very hard to understand how a correct <span class="context-match">diagnosis</span> by a medical expert. recognising a dise...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 3</span>
+                        <span>Page(s): 7, 12, 14</span>
+                    </div>
+                    
+                    <div class="context">
+                        ....” real-world medical interventions. To <span class="context-match">address</span> this, the field of “explainable To take...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQChristmasChallenge.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQChristmasChallenge.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        GCHQChristmasChallengeSchools.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/GCHQChristmasChallengeSchools.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        German Answers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/German%20Answers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        German Questions - Level 1.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/German%20Questions%20-%20Level%201.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        German Questions - Level 2.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/German%20Questions%20-%20Level%202.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Hints_2024.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Hints_2024.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        INWEDCompetitionEntryForm.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">Address <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/INWEDCompetitionEntryForm.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"Address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 1</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...onality: _________________________ Full <span class="context-match">Address</span>: ______________________________________...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Mandarin Answers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Mandarin%20Answers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Mandarin Questions.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Mandarin%20Questions.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NCF_Responsible_Cyber_Power_In_Practice.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">4 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">secret <span class="term-count-mini">2</span></span> <span class="term-preview-badge">address <span class="term-count-mini">2</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NCF_Responsible_Cyber_Power_In_Practice.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 2</span>
+                        <span>Page(s): 23, 27</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...d use of while most of this must remain <span class="context-match">secret</span>, capabilities in a way that is predicta...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 2</span>
+                        <span>Page(s): 26, 27</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...oss-government We have a broad remit to <span class="context-match">address</span> approaches under the National threats i...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLC 2023 Instruction Guide.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">12 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">password <span class="term-count-mini">4</span></span> <span class="term-preview-badge">username <span class="term-count-mini">1</span></span> <span class="term-preview-badge">email address <span class="term-count-mini">3</span></span> <span class="term-preview-badge">address <span class="term-count-mini">3</span></span> <span class="term-preview-badge">swift <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLC%202023%20Instruction%20Guide.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M5.039 19q-.441 0-.74-.299T4 17.961v-.607q0-.62.36-1.159q.361-.54.97-.837q1.416-.68 2.834-1.018Q9.58 14 11 14q.446 0 .883.041q.436.042.883.111q.217.044.34.174t.144.347q.108.944.566 1.799t1.197 1.464q.04.03.064.073q.023.043.023.095v.127q0 .31-.23.54t-.54.229zM11 11.77q-1.246 0-2.123-.878Q8 10.016 8 8.77t.877-2.123T11 5.77t2.123.877T14 8.77t-.877 2.123T11 11.77m7.308 2.673q.31 0 .539-.239q.23-.24.23-.55q0-.309-.23-.538t-.54-.23t-.548.23t-.24.539t.24.549t.549.24m.092 6.669l-.75-.77q-.03-.03-.13-.273v-3.43q-.85-.248-1.387-.96q-.537-.71-.537-1.621q0-1.123.794-1.917q.794-.795 1.918-.795t1.907.794t.785 1.918q0 .875-.484 1.538q-.483.663-1.247.962l.67.669q.13.13.13.292t-.13.293l-.589.588q-.13.13-.13.283t.13.283l.608.588q.13.13.13.283t-.13.282l-.992.993q-.131.13-.283.13t-.283-.13"/></svg> credentials</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"password"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 4</span>
+                        <span>Page(s): 1, 9, 10, 14</span>
+                    </div>
+                    
+                    <div class="context">
+                        ........ 13 My student has forgotten their <span class="context-match">password</span>, how can I reset it? .....................
+                    </div>
+                
+                </div>
+            
+                <div class="match-item">
+                    <div class="match-word">"username"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 9</span>
+                    </div>
+                    
+                    <div class="context">
+                        ..., and click ‘Submit’  Choose a handle (<span class="context-match">username</span>) from the 5 randomly generated options....
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 20q-.825 0-1.412-.587T4 18v-2h2v2h12v-2h2v2q0 .825-.587 1.413T18 20zm-2-4v-2h2v2zm0-4v-2h2v2zm0-4V6q0-.825.588-1.412T6 4h12q.825 0 1.413.588T20 6v2h-2V6H6v2zm4 2h8q.425 0 .713.288T17 11v2q0 .425-.288.713T16 14H8q-.425 0-.712-.288T7 13v-2q0-.425.288-.712T8 10m10 10v-2h2v2zm0-8V6h2v6z"/></svg> financial</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"swift"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 15</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...teachers should be on hand to provide a <span class="context-match">swift</span> method of communication between the stu...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 3</span>
+                        <span>Page(s): 2, 4, 15</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...tails (be sure to use your school email <span class="context-match">address</span> and select your school from the schools...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q-1.65 0-2.825-1.175T8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12m-8 8v-2.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2V20z"/></svg> personal_identifiers</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"email address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 3</span>
+                        <span>Page(s): 2, 4, 15</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...our details (be sure to use your school <span class="context-match">email address</span> and select your school from the schools...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLC Challenge no1 Walkthrough with Spoilers!.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLC%20Challenge%20no1%20Walkthrough%20with%20Spoilers%21.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLC Challenge no1.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLC%20Challenge%20no1.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLC Postcard Walkthrough.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLC%20Postcard%20Walkthrough.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLC Sample Challenge Walkthrough.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLC%20Sample%20Challenge%20Walkthrough.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLC Sample Challenge.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLC%20Sample%20Challenge.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLCChallenge1.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLCChallenge1.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLCChallenge1_WT.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLCChallenge1_WT.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLCChallenge2.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLCChallenge2.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLCChallenge2_WT.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLCChallenge2_WT.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLCChallenge3.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">secret <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLCChallenge3.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 1</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...age which they will use to blend in - A <span class="context-match">secret</span> number signed using hands which they wi...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        NLCChallenge3_WT.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">2 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">secret <span class="term-count-mini">2</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/NLCChallenge3_WT.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 2</span>
+                        <span>Page(s): 2, 3</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...ge which they will use to blend in, - A <span class="context-match">secret</span> number signed using hands which they wi...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Russian Answers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Russian%20Answers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Russian Questions.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Russian%20Questions.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Schools Pack 2024.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">2 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">secret <span class="term-count-mini">2</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Schools%20Pack%202024.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M6 22q-.825 0-1.412-.587T4 20V10q0-.825.588-1.412T6 8h1V6q0-2.075 1.463-3.537T12 1t3.538 1.463T17 6v2h1q.825 0 1.413.588T20 10v10q0 .825-.587 1.413T18 22zm6-5q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9 8h6V6q0-1.25-.875-2.125T12 3t-2.125.875T9 6z"/></svg> confidentiality</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"secret"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 2</span>
+                        <span>Page(s): 3, 7</span>
+                    </div>
+                    
+                    <div class="context">
+                        ... use the card front cover to reveal our <span class="context-match">secret</span> hidden message. The challenge is not de...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Spanish Answers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Spanish%20Answers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Spanish Questions - Level 1.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Spanish%20Questions%20-%20Level%201.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        Spanish Questions - Level 2.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/Spanish%20Questions%20-%20Level%202.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        The GCHQ Christmas Challenge 2022.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">address <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/The%20GCHQ%20Christmas%20Challenge%202022.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 1</span>
+                    </div>
+                    
+                    <div class="context">
+                        .... The remaining puzzle contains a third <span class="context-match">address</span>. Once you’ve found the locations, take ...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        The GCHQ Christmas Challenge 2022_Answers.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-danger">1 matches</span>
+                        <div class="terms-preview"><span class="term-preview-badge">address <span class="term-count-mini">1</span></span></div>
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/The%20GCHQ%20Christmas%20Challenge%202022_Answers.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    
+            <div class="category-section">
+                <h4><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#219b95" d="M12 12q.825 0 1.413-.587T14 10t-.587-1.412T12 8t-1.412.588T10 10t.588 1.413T12 12m0 10q-4.025-3.425-6.012-6.362T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 2.5-1.987 5.438T12 22"/></svg> location</h4>
+                
+                <div class="match-item">
+                    <div class="match-word">"address"</div>
+                    <div class="match-details">
+                        <span>Occurrences: 1</span>
+                        <span>Page(s): 1</span>
+                    </div>
+                    
+                    <div class="context">
+                        ...mber) in the codetext gives ‘what3words <span class="context-match">address</span> is outboard.grid.rejoins’. ANSWER: The ...
+                    </div>
+                
+                </div>
+            
+            </div>
+        
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        The GCHQ Christmas Challenge 2022_Certificate.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/The%20GCHQ%20Christmas%20Challenge%202022_Certificate.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+            <div class="file-card clean-file">
+                <div class="file-card-header">
+                    <h3>
+                        <span class="toggle-icon">▶</span>
+                        The GCHQ Christmas Challenge 2022_Hints.pdf
+                    </h3>
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-clean">Clean</span>
+                        
+                        <a href="file:///C:/Users/pavel/Devel/Dorkovnik/GCHQ-download/The%20GCHQ%20Christmas%20Challenge%202022_Hints.pdf" class="file-link" title="View File">View File</a>
+                    </div>
+                </div>
+                <div class="file-card-body">
+                    <p class="no-findings">No sensitive terms found in this file</p>
+                </div>
+            </div>
+        
+        </section>
+    
+
+        <footer>
+            <p style="display: flex; align-items: center; justify-content: center; margin: 0;">
+                <span>Created by <strong>Docs-X-Ray</strong> tool by San-Tus</span>
+                <a href="https://github.com/San-Tus/Docs-X-Ray" target="_blank" style="display: inline-flex; align-items: center; margin-left: 8px; color: #e6e6e6; text-decoration: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-right: 4px;">
+                        <path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                    </svg>
+                    GitHub
+                </a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        
+        // Toggle file card details
+        document.querySelectorAll('.file-card-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A') return;
+
+                const body = header.nextElementSibling;
+                const icon = header.querySelector('.toggle-icon');
+
+                body.classList.toggle('active');
+                icon.classList.toggle('active');
+            });
+        });
+
+        // Toggle clean files visibility
+        const toggleBtn = document.getElementById('toggle-clean-files');
+        if (toggleBtn) {
+            const originalText = toggleBtn.textContent;
+            const cleanCount = originalText.match(/\((\d+)\)/)?.[1] || '';
+
+            toggleBtn.addEventListener('click', () => {
+                const cleanFiles = document.querySelectorAll('.file-card.clean-file');
+                const isShowing = cleanFiles[0]?.classList.contains('show');
+
+                cleanFiles.forEach(file => {
+                    file.classList.toggle('show');
+                });
+
+                toggleBtn.textContent = isShowing ? 'Show Clean Files (' + cleanCount + ')' : 'Hide Clean Files (' + cleanCount + ')';
+            });
+        }
+
+        // Smooth scroll to sections
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    
+    </script>
+</body>
+</html>
